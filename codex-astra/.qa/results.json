@@ -1,0 +1,54 @@
+[
+  {
+    "name": "Viewport is 393 × 852",
+    "pass": true
+  },
+  {
+    "name": "All cropped artwork loaded",
+    "pass": true
+  },
+  {
+    "name": "Initial state matches",
+    "pass": true
+  },
+  {
+    "name": "Banner has at least 8px clearance above navigation",
+    "pass": true
+  },
+  {
+    "name": "Close button remains inside banner and clickable",
+    "pass": true
+  },
+  {
+    "name": "Notify button click updates label",
+    "pass": true
+  },
+  {
+    "name": "Close button click dismisses banner",
+    "pass": true
+  },
+  {
+    "name": "Category click selects Electronics only",
+    "pass": true
+  },
+  {
+    "name": "Category row has horizontal overflow",
+    "pass": true
+  },
+  {
+    "name": "Horizontal wheel scroll moves category row",
+    "pass": true
+  },
+  {
+    "name": "Keyboard arrows update active category",
+    "pass": true
+  },
+  {
+    "name": "Reload restores initial state",
+    "pass": true
+  },
+  {
+    "name": "No document horizontal overflow",
+    "pass": true
+  }
+]

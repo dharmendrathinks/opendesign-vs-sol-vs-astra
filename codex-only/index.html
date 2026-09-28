@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fdecef" />
+  <title>District — Currently unavailable</title>
+  <style>
+    :root {
+      --ink: #29292b;
+      --muted: #9299a7;
+      --red: #e83549;
+      --aqua: #d6fcfa;
+      --card-blue: #76abdc;
+      --yellow: #ffd343;
+      --purple: #9840f4;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; min-height: 100%; background: #edf1f4; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      display: grid;
+      place-items: start center;
+      overflow: hidden;
+    }
+
+    button { font: inherit; color: inherit; }
+
+    .device {
+      position: relative;
+      width: min(100vw, 393px);
+      height: min(100svh, 852px);
+      overflow: hidden;
+      background: #f7f8f7;
+    }
+
+    .screen-scroll {
+      position: absolute;
+      inset: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .screen-scroll::-webkit-scrollbar,
+    .category-scroller::-webkit-scrollbar { display: none; }
+
+    .availability {
+      height: 150px;
+      position: relative;
+      z-index: 2;
+      background: #fdecef;
+      text-align: center;
+      padding-top: 58px;
+    }
+
+    .status-bar {
+      position: absolute;
+      top: 17px;
+      left: 53px;
+      right: 34px;
+      height: 24px;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #050505;
+      pointer-events: none;
+    }
+
+    .status-time {
+      font-weight: 760;
+      letter-spacing: -1.2px;
+      font-size: 17px;
+    }
+
+    .status-icons { display: flex; gap: 10px; align-items: center; }
+    .signal { display: flex; align-items: end; gap: 2px; height: 13px; }
+    .signal i { width: 3px; border-radius: 2px; background: #c9c4c6; }
+    .signal i:nth-child(1) { height: 5px; background: #111; }
+    .signal i:nth-child(2) { height: 8px; }
+    .signal i:nth-child(3) { height: 11px; }
+    .signal i:nth-child(4) { height: 13px; }
+
+    .wifi { width: 17px; height: 13px; position: relative; overflow: hidden; }
+    .wifi::before, .wifi::after {
+      content: ""; position: absolute; left: 50%; transform: translateX(-50%) rotate(45deg);
+      border: 2.3px solid #050505; border-right: 0; border-bottom: 0; border-radius: 13px 0 0 0;
+    }
+    .wifi::before { width: 15px; height: 15px; top: 1px; }
+    .wifi::after { width: 7px; height: 7px; top: 7px; }
+
+    .battery { width: 26px; height: 13px; border: 1.5px solid #999; border-radius: 4px; position: relative; padding: 2px; }
+    .battery::before { content: ""; display: block; width: 16px; height: 7px; background: #35c96c; border-radius: 2px; }
+    .battery::after { content: ""; position: absolute; width: 2px; height: 5px; right: -4px; top: 3px; background: #999; border-radius: 0 2px 2px 0; }
+    .bolt { position: absolute; color: #111; font-size: 17px; font-weight: 900; left: 7px; top: -6px; transform: skew(-8deg); }
+
+    .availability-title {
+      margin: 0;
+      color: var(--red);
+      font-weight: 780;
+      font-size: 14.5px;
+      letter-spacing: .05px;
+      line-height: 18px;
+    }
+
+    .availability-copy {
+      margin: 4px 0 0;
+      color: #9ca2b0;
+      font-size: 13px;
+      letter-spacing: .2px;
+      line-height: 19px;
+    }
+
+    .notify-button {
+      margin-top: 4px;
+      min-width: 82px;
+      height: 32px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 8px;
+      background: #363638;
+      color: white;
+      font-size: 14px;
+      letter-spacing: .3px;
+      cursor: pointer;
+      transition: transform 120ms ease, background 160ms ease;
+    }
+    .notify-button:active { transform: scale(.97); }
+    .notify-button.enabled { background: #218451; }
+
+    .availability::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -7px;
+      height: 13px;
+      background: radial-gradient(12px 9px at 8px 0, #fdecef 99%, transparent 100%) 0 0 / 20px 13px repeat-x;
+    }
+
+    .store-panel {
+      height: 210px;
+      padding: 18px 12px 0;
+      position: relative;
+      background: linear-gradient(180deg, #7eb8e8 0%, #a5dff1 60%, #d1fbf8 100%);
+    }
+
+    .demand-label { margin: 0; font-size: 13px; font-weight: 770; line-height: 16px; }
+    .unavailable-title { margin: 1px 0 3px; font-size: 23px; line-height: 28px; letter-spacing: -.45px; font-weight: 800; }
+    .location-row { display: flex; align-items: center; white-space: nowrap; font-size: 15.5px; line-height: 22px; }
+    .location-row strong { font-weight: 800; margin-right: 4px; }
+    .location-caret { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid #39424a; margin-left: 8px; margin-top: 3px; }
+
+    .header-actions { position: absolute; right: 12px; top: 36px; display: flex; gap: 7px; align-items: center; }
+    .wallet-button, .profile-button { border: 0; background: #fff; padding: 0; cursor: pointer; }
+    .wallet-button { width: 36px; height: 38px; border-radius: 20px 20px 8px 8px; position: relative; }
+    .wallet-button::after { content: "₹0"; position: absolute; left: 0; right: 0; bottom: -2px; height: 14px; border-radius: 10px; background: white; font-weight: 700; font-size: 11px; line-height: 14px; }
+    .wallet-coin { position: absolute; left: 10px; top: 5px; width: 18px; height: 16px; border-radius: 5px; background: #788700; transform: rotate(-25deg); }
+    .wallet-coin::after { content: "₹"; color: #fff4b5; position: absolute; inset: 0; font-size: 10px; font-weight: 900; line-height: 16px; transform: rotate(25deg); }
+
+    .profile-button { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; box-shadow: 0 0 0 1px rgba(0,0,0,.05); }
+    .profile-icon { width: 21px; height: 22px; position: relative; }
+    .profile-icon::before { content: ""; position: absolute; left: 7px; top: 1px; width: 8px; height: 8px; border-radius: 50%; background: #181818; }
+    .profile-icon::after { content: ""; position: absolute; left: 3px; bottom: 0; width: 16px; height: 10px; border-radius: 10px 10px 5px 5px; background: #181818; }
+
+    .search-bar {
+      height: 50px;
+      margin-top: 8px;
+      border-radius: 27px;
+      background: rgba(239, 255, 255, .83);
+      display: flex;
+      align-items: center;
+      padding: 0 14px 0 13px;
+      gap: 11px;
+    }
+    .search-bar svg { width: 21px; height: 21px; stroke-width: 2.6; flex: 0 0 auto; }
+    .search-copy { color: #08090b; font-size: 16px; font-weight: 600; letter-spacing: .1px; flex: 1; }
+    .search-divider { width: 1px; height: 22px; background: #e0e0e1; margin-right: 4px; }
+    .mic-icon { width: 17px !important; height: 23px !important; }
+
+    .category-scroller {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 52px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      scroll-behavior: smooth;
+      touch-action: pan-x;
+    }
+
+    .categories { display: flex; width: max-content; height: 100%; gap: 0; padding: 0; }
+    .category {
+      position: relative;
+      width: 65px;
+      height: 52px;
+      border: 0;
+      background: transparent;
+      padding: 4px 2px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 3px;
+      cursor: pointer;
+    }
+    .category.wide { width: 105px; }
+    .category[data-category="Electronics"],
+    .category[data-category="Pharmacy"] { width: 84px; }
+    .category[data-category="Beauty"] { width: 80px; }
+    .category svg { width: 24px; height: 24px; stroke: #34383a; stroke-width: 1.7; fill: none; }
+    .category-label { font-size: 12.5px; white-space: nowrap; }
+    .category.active .category-label { font-weight: 800; }
+    .category.active::after { content: ""; position: absolute; width: 36px; height: 3px; left: 50%; bottom: 0; transform: translateX(-50%); border-radius: 3px 3px 0 0; background: #34383a; }
+    .all-bag { width: 21px; height: 19px; border-radius: 3px 3px 2px 2px; background: #202224; position: relative; margin-top: 3px; }
+    .all-bag::before, .all-bag::after { content: ""; position: absolute; width: 4px; height: 9px; border: 1.5px solid #202224; border-radius: 4px 4px 0 0; bottom: 13px; background: #f7c840; }
+    .all-bag::before { left: 4px; } .all-bag::after { right: 4px; }
+    .new-pill { position: absolute; left: 61px; top: 2px; padding: 1px 6px; border-radius: 9px; background: #e9364d; color: white; font-weight: 800; font-size: 10px; line-height: 14px; }
+
+    .festival {
+      position: relative;
+      min-height: 344px;
+      background: #cffffb;
+      padding: 22px 12px 24px;
+      overflow: hidden;
+    }
+    .festival-kicker { position: relative; z-index: 2; margin-left: 52px; color: #77b5db; font-size: 14px; letter-spacing: 4px; font-weight: 800; }
+    .festival-title { position: relative; z-index: 2; margin: 3px 0 19px 10px; color: #75b3d6; font: italic 31px/1.05 Georgia, serif; letter-spacing: -1px; }
+    .festival-title::after { content: ""; position: absolute; width: 108px; height: 16px; border-bottom: 2px solid #77b5d6; border-radius: 50%; left: 92px; bottom: -7px; opacity: .55; }
+    .krishna-art { position: absolute; top: 0; right: -1px; width: 142px; height: 91px; object-fit: cover; object-position: center; z-index: 1; }
+
+    .festival-grid { display: grid; grid-template-columns: 114px 1fr 1fr; grid-template-rows: 113px 113px; gap: 12px; position: relative; z-index: 2; }
+    .festival-card { position: relative; overflow: hidden; background: var(--card-blue); border-radius: 18px; color: white; text-align: center; }
+    .festival-card.tall { grid-row: 1 / 3; border-radius: 17px; }
+    .festival-card h3 { position: relative; z-index: 2; margin: 7px 4px 0; font-family: Georgia, serif; font-size: 16px; line-height: 18px; letter-spacing: .1px; }
+    .festival-card:not(.tall) h3 { font-family: inherit; font-size: 13px; line-height: 15px; font-weight: 670; margin-top: 7px; }
+    .festival-card img { position: absolute; display: block; object-fit: cover; }
+    .festival-card.tall img { left: 0; right: 0; bottom: 0; width: 100%; height: 83px; }
+    .festival-card:not(.tall) img { left: 0; right: 0; bottom: 0; width: 100%; height: 79px; }
+    .festival-card .old-price { position: absolute; z-index: 3; top: 58px; left: 39px; background: #2c3033; border-radius: 4px; padding: 2px 5px; font-size: 13px; text-decoration: line-through; }
+    .festival-card .new-price { position: absolute; z-index: 3; top: 78px; left: 28px; background: var(--yellow); color: #1d2831; border-radius: 6px; padding: 3px 8px; font-size: 21px; font-weight: 900; }
+    .festival-card .rudraksha-label { position: absolute; z-index: 3; top: 110px; left: 0; right: 0; font-size: 13px; font-weight: 800; }
+
+    .lace { height: 10px; background: radial-gradient(circle at 7px 11px, transparent 6px, #f0faf7 6.5px, #f0faf7 8px, transparent 8.5px) 0 -6px / 15px 16px repeat-x, #cffffb; }
+    .under-content { min-height: 190px; background: linear-gradient(180deg, #fff 0%, #f2f3f4 100%); padding: 15px 12px; color: #c7c7c7; }
+    .under-content h2 { margin: 0; font-size: 20px; }
+    .under-content p { margin: 86px 0 0; font-size: 17px; font-weight: 700; text-align: center; color: #dfdfdf; }
+
+    .delivery-banner {
+      position: absolute;
+      z-index: 20;
+      left: 20px;
+      right: 20px;
+      bottom: 92px;
+      height: 56px;
+      border-radius: 35px;
+      background: rgba(255,255,255,.96);
+      box-shadow: 0 12px 30px rgba(46, 44, 47, .16);
+      display: flex;
+      align-items: center;
+      padding: 6px 12px 6px 7px;
+      transition: transform 220ms ease, opacity 180ms ease;
+    }
+    .delivery-banner.dismissed { transform: translateY(26px) scale(.95); opacity: 0; pointer-events: none; }
+    .delivery-banner[hidden] { display: none; }
+    .delivery-icon { width: 46px; height: 46px; border-radius: 50%; background: #fff; box-shadow: 0 3px 12px rgba(0,0,0,.08); display: grid; place-items: center; flex: 0 0 auto; }
+    .delivery-icon svg { width: 29px; height: 29px; }
+    .delivery-copy { flex: 1; min-width: 0; padding-left: 8px; color: #0d0d0e; font-size: 12px; line-height: 15px; white-space: nowrap; }
+    .delivery-copy strong { display: block; font-size: 13px; line-height: 16px; letter-spacing: -.15px; font-weight: 850; }
+    .delivery-arrow { display: inline-block; width: 0; height: 0; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 4px solid #b9bdc6; margin-left: 7px; }
+    .close-banner { width: 31px; height: 31px; border-radius: 50%; border: 1px solid #e1e3e7; background: #fafafa; display: grid; place-items: center; cursor: pointer; flex: 0 0 auto; }
+    .close-banner svg { width: 15px; height: 15px; stroke: #48484c; stroke-width: 2.5; }
+
+    .bottom-nav-wrap {
+      position: absolute;
+      z-index: 19;
+      left: 20px;
+      right: 20px;
+      bottom: 15px;
+      height: 73px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bottom-nav {
+      height: 63px;
+      flex: 1;
+      border: 1px solid rgba(255,255,255,.9);
+      background: rgba(255,255,255,.92);
+      border-radius: 33px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 2px 7px 3px;
+      box-shadow: 0 8px 26px rgba(0,0,0,.08);
+      backdrop-filter: blur(10px);
+    }
+    .nav-item { border: 0; background: transparent; padding: 2px 0 1px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 10.5px; cursor: pointer; border-radius: 28px; }
+    .nav-item.active { background: linear-gradient(135deg, #f4ded6, #f4f1eb); font-weight: 800; }
+    .nav-item svg { width: 25px; height: 25px; fill: none; stroke: #2e3033; stroke-width: 1.75; }
+    .nav-item.active svg .home-fill { fill: #ffd242; stroke: #2e3033; }
+
+    .district-button { width: 63px; height: 63px; border: 0; border-radius: 50%; background: var(--purple); color: #fff; font-weight: 900; font-size: 10px; letter-spacing: -.5px; transform: rotate(-2deg); cursor: pointer; box-shadow: 0 10px 24px rgba(120, 41, 212, .22); }
+    .district-button span { font-size: 12px; }
+
+    @media (max-width: 392px) {
+      .festival-grid { grid-template-columns: 112px 1fr 1fr; gap: 10px; }
+      .store-panel, .festival { padding-left: 10px; padding-right: 10px; }
+      .header-actions { right: 10px; }
+    }
+
+    @media (max-width: 500px) {
+      body { place-items: start; }
+    }
+
+    @media (max-width: 380px) {
+      .delivery-copy { font-size: 11.5px; }
+      .delivery-copy strong { font-size: 12px; letter-spacing: -.25px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="device" aria-label="District mobile grocery app prototype">
+    <div class="screen-scroll">
+      <section class="availability" aria-labelledby="availability-heading">
+        <div class="status-bar" aria-label="Status bar, 17:11">
+          <span class="status-time">17:11</span>
+          <div class="status-icons" aria-hidden="true">
+            <span class="signal"><i></i><i></i><i></i><i></i></span>
+            <span class="wifi"></span>
+            <span class="battery"><span class="bolt">ϟ</span></span>
+          </div>
+        </div>
+        <h1 class="availability-title" id="availability-heading">Currently unavailable due to high demand</h1>
+        <p class="availability-copy">Apologies for the inconvenience caused. We'll be back soon</p>
+        <button class="notify-button" id="notifyButton" type="button">Notify Me</button>
+      </section>
+
+      <section class="store-panel" aria-label="Store and categories">
+        <p class="demand-label">Due to excess demand</p>
+        <h2 class="unavailable-title">Currently unavailable</h2>
+        <div class="location-row"><strong>HOME</strong> - Floor 26, 2261, tower 2 <span class="location-caret" aria-hidden="true"></span></div>
+
+        <div class="header-actions">
+          <button class="wallet-button" type="button" aria-label="Wallet balance, zero rupees"><span class="wallet-coin"></span></button>
+          <button class="profile-button" type="button" aria-label="Profile"><span class="profile-icon"></span></button>
+        </div>
+
+        <div class="search-bar" role="search" aria-label="Search products">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="7" fill="none" stroke="currentColor"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-linecap="round"/></svg>
+          <span class="search-copy">Search "healthy snacks"</span>
+          <span class="search-divider" aria-hidden="true"></span>
+          <svg class="mic-icon" viewBox="0 0 24 28" aria-hidden="true"><rect x="8" y="2" width="8" height="15" rx="4" fill="none" stroke="currentColor"/><path d="M4.5 13v1c0 5 3.2 8 7.5 8s7.5-3 7.5-8v-1M12 22v4" fill="none" stroke="currentColor" stroke-linecap="round"/></svg>
+        </div>
+
+        <nav class="category-scroller" aria-label="Product categories">
+          <div class="categories">
+            <button class="category active" type="button" data-category="All" aria-pressed="true"><span class="all-bag"></span><span class="category-label">All</span></button>
+            <button class="category wide" type="button" data-category="Ganeshotsav" aria-pressed="false">
+              <span class="new-pill">New</span>
+              <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M7 5c-2 0-4 1-5 3 2 1 3 1 5 1m5-5c4 0 7 4 7 8 0 5-3 8-7 8-5 0-7-5-7-9V6m9 5c0 3-1 5-3 5-2 0-3-2-2-4 1-2 4-2 5-1Zm5-5c3 0 5 2 5 5 0 2-2 4-4 4"/></svg>
+              <span class="category-label">Ganeshotsav</span>
+            </button>
+            <button class="category wide" type="button" data-category="Electronics" aria-pressed="false"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M5 16v-4a9 9 0 0 1 18 0v4M5 15c-2 0-3 1-3 3v4c0 2 1 3 3 3h3V15H5Zm18 0c2 0 3 1 3 3v4c0 2-1 3-3 3h-3V15h3Z"/></svg><span class="category-label">Electronics</span></button>
+            <button class="category" type="button" data-category="Beauty" aria-pressed="false"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 25h8V10H4v15Zm2-15V3h4v7M17 25h7V11h-7v14Zm-1-22h9l-2 8h-5l-2-8ZM2 18h12"/></svg><span class="category-label">Beauty</span></button>
+            <button class="category wide" type="button" data-category="Pharmacy" aria-pressed="false"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 8h11v17H6V8Zm2-5h7v5H8V3Zm1 13h5m-2-3v6m8-7h4v10h-4z"/></svg><span class="category-label">Pharmacy</span></button>
+          </div>
+        </nav>
+      </section>
+
+      <section class="festival" aria-labelledby="festival-heading">
+        <img class="krishna-art" src="assets/krishna.png" alt="Krishna with butter pots" />
+        <div class="festival-kicker">CELEBRATE</div>
+        <h2 class="festival-title" id="festival-heading">Janmashtami</h2>
+        <div class="festival-grid">
+          <article class="festival-card tall">
+            <h3>Poshak, Idol<br />&amp; More</h3>
+            <span class="old-price">₹599</span><span class="new-price">₹229</span><span class="rudraksha-label">Rudraksha</span>
+            <img src="assets/rudraksha.png" alt="Rudraksha beads and conch shells" />
+          </article>
+          <article class="festival-card"><h3>Prasad<br />Corner</h3><img src="assets/prasad.png" alt="Prasad sweets and dairy products" /></article>
+          <article class="festival-card"><h3>Kids' Costume<br />&amp; Shringar</h3><img src="assets/costume.png" alt="Krishna costume and flowers" /></article>
+          <article class="festival-card"><h3>Fasting &amp;<br />Dahi Handi</h3><img src="assets/fasting.png" alt="Fasting food products" /></article>
+          <article class="festival-card"><h3>Pooja &amp;<br />Temple Decor</h3><img src="assets/pooja.png" alt="Flowers and temple decor" /></article>
+        </div>
+      </section>
+      <div class="lace" aria-hidden="true"></div>
+      <section class="under-content" aria-label="More products"><h2>For you</h2><p>Vegetables &amp; Fruits</p></section>
+    </div>
+
+    <aside class="delivery-banner" id="deliveryBanner" aria-label="Free delivery on orders above 299 rupees. Applied automatically at checkout.">
+      <div class="delivery-icon" aria-hidden="true">
+        <svg viewBox="0 0 42 42"><g fill="none" stroke="#2879ed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="31" r="5"/><circle cx="31" cy="31" r="5"/><path d="M17 31h9M8 27l5-10h11l6 10M18 17l2-6h7m-1 0-3-3m3 3-3 3M4 22h7"/></g></svg>
+      </div>
+      <div class="delivery-copy"><strong>Free delivery on orders above ₹299</strong>Applied automatically at checkout</div>
+      <button class="close-banner" id="closeBanner" type="button" aria-label="Dismiss free delivery offer"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4l12 12M16 4 4 16" fill="none" stroke="currentColor" stroke-linecap="round"/></svg></button>
+    </aside>
+
+    <div class="bottom-nav-wrap">
+      <nav class="bottom-nav" aria-label="Primary navigation">
+        <button class="nav-item active" type="button" aria-current="page"><svg viewBox="0 0 28 28" aria-hidden="true"><path class="home-fill" d="M4 13 14 4l10 9v11H4V13Z"/><path d="M11 24v-7h6v7"/></svg><span>Home</span></button>
+        <button class="nav-item" type="button"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="8" cy="8" r="5"/><circle cx="20" cy="8" r="5"/><circle cx="8" cy="20" r="5"/><circle cx="20" cy="20" r="5"/></svg><span>Categories</span></button>
+        <button class="nav-item" type="button"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="6" y="10" width="16" height="13" rx="3"/><path d="M9 10V4h10v6M10 18h8m-7 5v3h6v-3"/></svg><span>Print</span></button>
+        <button class="nav-item" type="button"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M9 23h10M7 20h14l-2-3V9a5 5 0 0 0-10 0v8l-2 3ZM4 10H1m3-5L2 3m22 7h3m-3-5 2-2"/><path d="M14 8v7m-3-4h6"/></svg><span>Ambulance</span></button>
+      </nav>
+      <button class="district-button" type="button" aria-label="Open district"><span>district ↗</span></button>
+    </div>
+  </main>
+
+  <script>
+    const notifyButton = document.getElementById('notifyButton');
+    const deliveryBanner = document.getElementById('deliveryBanner');
+    const closeBanner = document.getElementById('closeBanner');
+    const categories = [...document.querySelectorAll('.category')];
+
+    notifyButton.addEventListener('click', () => {
+      notifyButton.textContent = 'Notification enabled';
+      notifyButton.classList.add('enabled');
+      notifyButton.disabled = true;
+    });
+
+    closeBanner.addEventListener('click', () => {
+      deliveryBanner.classList.add('dismissed');
+      window.setTimeout(() => { deliveryBanner.hidden = true; }, 220);
+    });
+
+    categories.forEach((category) => {
+      category.addEventListener('click', () => {
+        categories.forEach((item) => {
+          const selected = item === category;
+          item.classList.toggle('active', selected);
+          item.setAttribute('aria-pressed', String(selected));
+        });
+        category.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      });
+    });
+  </script>
+</body>
+</html>

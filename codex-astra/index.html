@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#feecef">
+<title>Home · Grocery delivery</title>
+<style>
+:root { --ink:#303635; --aqua:#d2fefa; --card-top:#80afdd; --card-bottom:#6398ca; }
+* { box-sizing:border-box; }
+html,body { margin:0; min-height:100%; }
+body { color:var(--ink); font-family:"Avenir Next",Avenir,Arial,sans-serif; background:#fff; }
+button,input { font:inherit; }
+button { border:0; color:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+button:focus-visible,input:focus-visible { outline:2px solid #235fab; outline-offset:3px; }
+button { touch-action:manipulation; }
+svg { display:block; }
+.icon { width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.app { width:100%; max-width:393px; min-height:852px; margin:auto; position:relative; overflow:hidden; background:#fafafa; }
+.alert { height:150px; position:relative; background:#feecef; text-align:center; z-index:2; }
+.status { height:56px; display:flex; align-items:flex-start; justify-content:space-between; padding:18px 14px 0 52px; color:#000; }
+.time { font-family:Arial,sans-serif; font-size:16.5px; font-weight:700; letter-spacing:-.8px; line-height:22px; }
+.status-icons { display:flex; align-items:center; gap:6px; padding-top:4px; padding-right:19px; }
+.signal { width:20px; height:13px; display:flex; align-items:flex-end; gap:2px; }
+.signal i { width:3.5px; border-radius:1.2px; background:#cdc4c7; }
+.signal i:nth-child(1) { height:5px; background:#000; }
+.signal i:nth-child(2) { height:8px; }
+.signal i:nth-child(3) { height:11px; }
+.signal i:nth-child(4) { height:13px; }
+.wifi { width:18px; height:14px; }
+.battery { width:28px; height:16px; }
+.alert h1 { font-size:13px; font-weight:700; margin:5px 0 2px; line-height:18px; color:#e9314b; }
+.alert p { font-size:12.4px; letter-spacing:.03px; color:#9299a8; margin:0; line-height:18px; white-space:nowrap; }
+.notify { margin-top:3px; background:#343434; color:white; border-radius:9px; padding:7px 10px; min-width:82px; min-height:32px; font-size:13px; line-height:18px; }
+.notify[aria-pressed="true"] { font-size:12px; }
+.wave { position:absolute; bottom:0; left:0; width:100%; height:6px; fill:#feecef; }
+.header { height:209px; background:linear-gradient(174deg,#89baec 0%,#a3d4e6 52%,#d0fdf8 88%); position:relative; }
+.location { padding:16px 12px 0; }
+.demand { margin:0; font-weight:700; font-size:12px; line-height:17px; }
+.location h2 { font-size:25px; font-weight:700; letter-spacing:-.35px; line-height:31px; margin:0; }
+.address { display:flex; align-items:center; background:transparent; padding:0; margin-top:0; font-size:15.5px; line-height:23px; white-space:nowrap; }
+.address strong { font-weight:700; margin-right:4px; }
+.caret { margin-left:7px; width:0; height:0; border:4px solid transparent; border-top-color:#303635; transform:translateY(3px); }
+.account-actions { position:absolute; right:12px; top:27px; display:flex; gap:8px; }
+.account-actions button { width:36px; height:36px; background:#fff; border:1px solid #e9eaef; border-radius:50%; padding:7px; position:relative; }
+.wallet svg { width:25px; height:25px; transform:rotate(-16deg) translate(-1px,-4px); }
+.wallet span { position:absolute; bottom:-2px; left:-1px; background:white; border-radius:8px; width:37px; line-height:14px; font-size:10px; font-weight:700; }
+.profile .icon { width:23px; height:23px; fill:#1c1c1b; stroke:none; }
+.search { position:absolute; left:12px; right:12px; top:95px; height:50px; display:flex; align-items:center; border:1px solid #e6fffe; border-radius:30px; background:rgba(225,255,255,.9); box-shadow:0 16px 24px #56908e24; padding:0 11px; gap:7px; }
+.search>.icon { width:20px; height:20px; flex-shrink:0; stroke-width:2.2; }
+.search input { border:0; background:transparent; padding:0; min-width:0; flex:1; font-size:16px; font-weight:500; color:#000; outline-offset:1px; }
+.search input::placeholder { color:#000; opacity:1; }
+.mic { width:29px; border-left:1px solid #e0e6e8; height:22px; padding:1px 0 1px 12px; background:transparent; }
+.mic .icon { width:18px; height:21px; }
+.categories { display:flex; position:absolute; top:158px; left:0; right:0; height:51px; gap:0; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; overscroll-behavior-x:contain; border-bottom:1px solid #addfdf; }
+.categories::-webkit-scrollbar { display:none; }
+.category { flex:none; min-width:80px; height:51px; background:transparent; display:flex; flex-direction:column; align-items:center; padding:0 8px 5px; position:relative; gap:2px; font-size:11px; white-space:nowrap; }
+.category:first-child { min-width:63px; margin-right:0px; }
+.category:nth-child(2) { min-width:94px; }
+.category:nth-child(3) { min-width:108px; }
+.category:nth-child(4) { min-width:66px; }
+.category:nth-child(5) { min-width:102px; }
+.category .icon { height:22px; width:25px; stroke-width:1.5; }
+.category[aria-selected="true"] { font-weight:700; }
+.category[aria-selected="true"]::after { content:""; position:absolute; width:36px; height:3px; border-radius:4px 4px 0 0; background:var(--ink); bottom:0; }
+.new { position:absolute; top:0; left:44px; border-radius:8px; background:#df314b; color:white; font-size:9px; font-weight:700; line-height:12px; padding:0 4px; }
+.festival { height:355px; background:var(--aqua); position:relative; padding:94px 12px 20px; }
+.festival-heading { position:absolute; top:0; left:0; width:100%; height:94px; overflow:hidden; }
+.celebrate { position:absolute; left:64px; top:20px; margin:0; font-size:12.5px; font-weight:600; letter-spacing:2.1px; color:#82bfce; }
+.festival-heading h2 { position:absolute; top:32px; left:18px; margin:0; color:#81bdcc; font-family:Georgia,"Times New Roman",serif; font-weight:700; font-style:italic; letter-spacing:-1.4px; font-size:33px; line-height:43px; transform:scaleX(.88); transform-origin:left; }
+.flourish { position:absolute; top:46px; left:9px; width:222px; height:26px; border-bottom:1px solid #a9deda; border-radius:50%; transform:rotate(-2deg); }
+.flourish::before { content:""; position:absolute; left:-1px; top:-18px; width:45px; height:26px; border-left:1px solid #e4ffff; border-top:1px solid #e4ffff; border-radius:50%; }
+.krishna { position:absolute; right:0; top:0; width:138px; height:89px; }
+.feather { position:absolute; left:216px; top:13px; width:51px; height:43px; }
+.cards { display:grid; grid-template-columns:1fr 1fr 1fr; grid-template-rows:114px 114px; gap:12px; height:240px; position:relative; }
+.card { position:relative; overflow:hidden; border-radius:19px 19px 16px 16px; background:linear-gradient(#80aedc,#6195c8); text-align:center; color:#effbff; padding:6px 2px 0; }
+.card h3 { margin:0; font-size:14px; line-height:14px; font-weight:500; }
+.card img { position:absolute; object-fit:contain; max-width:none; pointer-events:none; }
+.card-tall { grid-row:span 2; padding-top:16px; }
+.card-tall h3 { font-family:Georgia,serif; font-size:15px; line-height:18px; font-weight:bold; }
+.card-tall .old-price { display:block; width:37px; background:#383939; border-radius:5px 5px 0 0; margin:9px auto 0; padding:3px 0 2px; font-size:12px; line-height:14px; font-weight:600; }
+.card-tall .price { display:block; width:59px; margin:-1px auto 0; background:#ffd248; color:#323432; border-radius:6px; font-size:19px; line-height:23px; font-weight:800; }
+.card-tall .product-label { margin:7px 0 0; font-size:12.5px; line-height:16px; font-weight:700; }
+.card-tall img { width:95px; height:76px; left:11px; bottom:1px; }
+.prasad img { width:102px; height:74px; left:9px; bottom:0; }
+.costume img { width:105px; height:76px; left:7px; bottom:0; }
+.fasting img { width:97px; height:75px; left:10px; bottom:-1px; }
+.temple img { width:109px; height:74px; left:4px; bottom:0; }
+.trim { position:absolute; height:9px; left:0; right:0; bottom:0; background:radial-gradient(circle at 8px 10px,#fafafa 8px,transparent 8.6px) 0 0/16px 11px repeat-x; }
+.trim::after { content:"✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦ ✦"; position:absolute; left:1px; top:-5px; height:10px; overflow:hidden; color:#fff8d1; font-size:12px; letter-spacing:2.4px; white-space:nowrap; }
+.below { height:166px; padding:19px 12px; color:#b9baba; }
+.below h2 { margin:0; font-size:17px; font-weight:700; }
+.below-art { margin:10px 4px 0; width:123px; height:48px; border-radius:12px; background:#e9e6e1; }
+.below h3 { margin:20px 0 0 27px; color:#ddd; font-size:13px; }
+.delivery { position:fixed; z-index:5; width:351px; max-width:calc(100% - 42px); height:49px; left:50%; transform:translateX(-50%); bottom:91px; display:flex; align-items:center; background:#fff; border:1px solid #fff; border-radius:29px; padding:4px 13px 4px 6px; box-shadow:0 12px 28px #00000013; color:#000; }
+.delivery[hidden] { display:none; }
+.delivery-bike { height:40px; width:40px; border-radius:50%; display:grid; place-items:center; box-shadow:0 1px 5px #00000008; flex-shrink:0; color:#2876fd; margin-right:7px; }
+.delivery-bike .icon { width:27px; height:27px; stroke-width:2.4; }
+.delivery-copy { flex:1; }
+.delivery strong { display:block; font-size:12px; line-height:16px; font-weight:700; }
+.delivery p { font-size:12px; margin:0; line-height:17px; white-space:nowrap; }
+.delivery-arrow { display:inline-block; border:4px solid transparent; border-left-color:#aaaebc; margin-left:7px; transform:translateY(1px); }
+.close { display:grid; place-items:center; width:29px; height:29px; padding:0; border:1px solid #e6e7ed; background:#f8f9fc; border-radius:50%; box-shadow:0 0 4px #00000005; margin-left:7px; }
+.close .icon { width:17px; height:17px; stroke-width:2.5; color:#555; }
+.bottom { position:fixed; z-index:4; left:50%; transform:translateX(-50%); bottom:21px; width:351px; max-width:calc(100% - 42px); height:62px; display:flex; gap:8px; filter:drop-shadow(0 13px 17px #00000009); }
+.nav { display:flex; flex:1; height:62px; background:linear-gradient(100deg,#ffeae4aa,#fffbf8db 62%,#fff); border:1px solid white; border-radius:40px; padding:3px; align-items:stretch; }
+.nav button { display:flex; flex:1; flex-direction:column; justify-content:center; align-items:center; padding:0 3px; background:transparent; border-radius:28px; gap:3px; font-size:9.5px; color:#151515; white-space:nowrap; }
+.nav button:first-child { min-width:73px; background:linear-gradient(115deg,#f8dcd6,#eae9e1); font-weight:700; }
+.nav .icon { width:27px; height:25px; color:#36373c; stroke-width:1.5; }
+.district { width:62px; height:62px; border-radius:50%; flex-shrink:0; background:#a344fa; color:#fff; padding:0; font-family:Impact,"Arial Narrow",sans-serif; font-weight:900; font-size:10px; letter-spacing:-.7px; }
+.district span { display:inline-block; transform:rotate(-3deg) scaleY(1.2); }
+@media(max-width:370px) { .alert h1{font-size:12px}.alert p{font-size:11px}.location h2{font-size:21px}.account-actions{right:8px;gap:5px}.account-actions button{width:32px;height:32px}.delivery-copy p{font-size:10px}.nav button:first-child{min-width:60px} }
+</style>
+</head>
+<body>
+<!-- Editable vector UI icons; imagery below contains only cropped product/decorative art. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="7.5"/><path d="m16 16 6 6"/></symbol>
+<symbol id="mic" viewBox="0 0 24 28"><rect x="8" y="1" width="8" height="17" rx="4" fill="currentColor" stroke="none"/><path d="M4 13a8 8 0 0 0 16 0M12 22v5" stroke-width="2.3"/></symbol>
+<symbol id="person" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4.5"/><path d="M3 21v-3a9 7 0 0 1 18 0v3q-9 3-18 0Z"/></symbol>
+<symbol id="all" viewBox="0 0 28 28"><path d="M3 14V8q0-4 5-4q4 0 4 4v7M18 13V6h5v8" fill="#f4c747"/><path d="M19 6V2h3v4" fill="#f4c747"/><path d="m2 14 5-2 4 3 7-4 8 5v10H2Z" fill="#232823" stroke="#232823"/></symbol>
+<symbol id="ganesh" viewBox="0 0 28 28"><path d="M11 7C5 3 1 4 2 8c0 7 1 12 8 12M18 7c6-4 10-3 8 2-1 4-3 6-7 7M10 6l1 14c0 8 10 8 11 2 1-4-4-5-5-2-1 3 3 3 3 1M10 7h9l-1 12M11 3h7M13 1h3"/><circle cx="14" cy="10" r=".6" fill="currentColor"/></symbol>
+<symbol id="headphones" viewBox="0 0 28 28"><path d="M4 21V12a10 10 0 0 1 20 0v10M4 15H2v7q0 3 4 3M24 15h2v7q0 3-4 3"/><rect x="6" y="14" width="5" height="13" rx="2.5"/><rect x="17" y="14" width="5" height="13" rx="2.5"/></symbol>
+<symbol id="beauty" viewBox="0 0 28 28"><path d="M3 17h8v10H3zM4 17V11h6v6M5 11V2l5 3v6M17 10h6l3-8q-5-3-12 0zM17 10v17h6V10M17 16h6"/></symbol>
+<symbol id="pharmacy" viewBox="0 0 28 28"><rect x="3" y="2" width="12" height="4" rx="1.5"/><path d="M6 6v4M12 6v4"/><rect x="3" y="10" width="12" height="17" rx="1.5"/><path d="M9 14v8M6 18h6"/><rect x="20" y="13" width="6" height="14" rx="3"/><path d="M20 20h6"/></symbol>
+<symbol id="home" viewBox="0 0 28 28"><path d="M20 5V2q4-2 4 3v5" fill="#f4d25a"/><path d="m3 11 10-8q2-1 4 1l9 9-2 12q0 2-3 2H7q-3 0-3-3Z" fill="#f8d447"/><path d="M11 27v-8a4 4 0 0 1 8 0v8" fill="#353b35"/></symbol>
+<symbol id="grid" viewBox="0 0 28 28"><rect x="2" y="2" width="10" height="10" rx="5"/><rect x="17" y="2" width="9" height="10" rx="4.5"/><rect x="2" y="17" width="10" height="10" rx="5"/><rect x="17" y="17" width="9" height="10" rx="4.5"/></symbol>
+<symbol id="print" viewBox="0 0 28 28"><path d="M6 10V3h16v7"/><rect x="1" y="9" width="26" height="18" rx="5"/><path d="M7 27v-7h14v7M7 14h14"/></symbol>
+<symbol id="ambulance" viewBox="0 0 32 32"><path d="M6 26V15a10 10 0 0 1 20 0v11M4 26h24v5H4zM16 0v-4M3 5l-3-3M0 15h-4M29 5l3-3M32 15h4M16 11v10M11 16h10"/><path d="M10 9q-2 2-2 6"/></symbol>
+<symbol id="bike" viewBox="0 0 32 32"><circle cx="7" cy="25" r="5"/><circle cx="26" cy="25" r="5"/><path d="M7 25l6-12h9l4 12M5 14h7M4 18h6M13 25h6l-5-8M18 8h6l-1-4h-4M6 10h7"/><circle cx="18" cy="5" r="2" fill="currentColor" stroke="none"/></symbol>
+<symbol id="close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+</defs></svg>
+<main class="app">
+<section class="alert" aria-label="Service availability">
+  <div class="status" aria-label="17:11, Wi-Fi connected, battery charging"><span class="time">17:11</span><div class="status-icons" aria-hidden="true"><span class="signal"><i></i><i></i><i></i><i></i></span><svg class="wifi" viewBox="0 0 24 19"><path d="M1 5q11-9 22 0M5 10q7-6 14 0" fill="none" stroke="#000" stroke-width="3.1"/><path d="m8 14 4 5 4-5q-4-3-8 0"/></svg><svg class="battery" viewBox="0 0 31 18"><rect x="1" y="2" width="26" height="14" rx="4" fill="none" stroke="#999"/><path d="M29 6v5" stroke="#999" stroke-width="2"/><rect x="3" y="4" width="15" height="10" rx="2" fill="#3ac952"/><path d="m19 0-10 10h7l-3 8 10-11h-7Z" stroke="#feecef" stroke-width="1.3"/></svg></div></div>
+  <h1>Currently unavailable due to high demand</h1>
+  <p>Apologies for the inconvenience caused. We'll be back soon</p>
+  <button class="notify" id="notify" aria-pressed="false">Notify Me</button>
+  <svg class="wave" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="waves" width="20" height="7" patternUnits="userSpaceOnUse"><path d="M0 3Q5 9 10 3T20 3V7H0Z" fill="#8abbee"/></pattern></defs><rect width="100%" height="7" fill="url(#waves)"/></svg>
+</section>
+<header class="header">
+  <div class="location"><p class="demand">Due to excess demand</p><h2>Currently unavailable</h2><button class="address" aria-label="Delivery address: Home, Floor 26, 2261, tower 2"><strong>HOME -</strong> Floor 26, 2261, tower 2 <span class="caret"></span></button></div>
+  <div class="account-actions"><button class="wallet" aria-label="Wallet balance ₹0"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M3 5q7-4 19-3v20H4Z" fill="#547913"/><rect x="4" y="7" width="21" height="20" rx="3" fill="#d5ad00"/><path d="m5 8 18-3" stroke="#f0d94f"/><text x="10" y="22" fill="white" font-size="17" font-weight="bold">₹</text></svg><span>₹0</span></button><button class="profile" aria-label="Profile"><svg class="icon"><use href="#person"/></svg></button></div>
+  <div class="search" role="search"><svg class="icon" aria-hidden="true"><use href="#search"/></svg><input type="search" aria-label="Search products" placeholder='Search "healthy snacks"'><button class="mic" aria-label="Voice search"><svg class="icon"><use href="#mic"/></svg></button></div>
+  <nav class="categories" role="tablist" aria-label="Shopping categories">
+    <button class="category" role="tab" aria-selected="true"><svg class="icon" aria-hidden="true"><use href="#all"/></svg><span>All</span></button>
+    <button class="category" role="tab" aria-selected="false" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#ganesh"/></svg><span class="new">New</span><span>Ganeshotsav</span></button>
+    <button class="category" role="tab" aria-selected="false" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#headphones"/></svg><span>Electronics</span></button>
+    <button class="category" role="tab" aria-selected="false" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#beauty"/></svg><span>Beauty</span></button>
+    <button class="category" role="tab" aria-selected="false" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#pharmacy"/></svg><span>Pharmacy</span></button>
+  </nav>
+</header>
+<section class="festival" aria-label="Celebrate Janmashtami">
+ <div class="festival-heading"><div class="flourish" aria-hidden="true"></div><p class="celebrate">CELEBRATE</p><h2>Janmashtami</h2><img class="feather" src="assets/peacock-feather.png" alt=""><img class="krishna" src="assets/krishna.png" alt="Baby Krishna with butter pots"></div>
+ <div class="cards">
+  <article class="card card-tall"><h3>Poshak, Idol<br>&amp; More</h3><del class="old-price">₹599</del><span class="price">₹229</span><p class="product-label">Rudraksha</p><img src="assets/rudraksha.png" alt="Rudraksha beads on a stone with a conch"></article>
+  <article class="card prasad"><h3>Prasad<br>Corner</h3><img src="assets/prasad.png" alt="Prasad sweets and Panchamrit"></article>
+  <article class="card costume"><h3>Kids’ Costume<br>&amp; Shringar</h3><img src="assets/costume.png" alt="Yellow Krishna costume and flowers"></article>
+  <article class="card fasting"><h3>Fasting &amp;<br>Dahi Handi</h3><img src="assets/fasting.png" alt="Fasting flour, makhana and dahi"></article>
+  <article class="card temple"><h3>Pooja &amp;<br>Temple Decor</h3><img src="assets/temple.png" alt="Marigold flowers, incense and pooja lamps"></article>
+ </div><div class="trim" aria-hidden="true"></div>
+</section>
+<section class="below" aria-label="More shopping"><h2>Fresh vegetables</h2><div class="below-art" aria-hidden="true"></div><h3>Vegetables &amp; Fruits</h3></section>
+<aside class="delivery" id="delivery" aria-label="Free delivery offer"><span class="delivery-bike"><svg class="icon" aria-hidden="true"><use href="#bike"/></svg></span><div class="delivery-copy"><strong>Get FREE delivery</strong><p>on your order above ₹199 <span class="delivery-arrow" aria-hidden="true"></span></p></div><button class="close" id="close-delivery" aria-label="Dismiss delivery banner"><svg class="icon"><use href="#close"/></svg></button></aside>
+<div class="bottom"><nav class="nav" aria-label="Bottom navigation"><button aria-current="page"><svg class="icon" aria-hidden="true"><use href="#home"/></svg>Home</button><button><svg class="icon" aria-hidden="true"><use href="#grid"/></svg>Categories</button><button><svg class="icon" aria-hidden="true"><use href="#print"/></svg>Print</button><button><svg class="icon" aria-hidden="true"><use href="#ambulance"/></svg>Ambulance</button></nav><button class="district" aria-label="District"><span>district ↗</span></button></div>
+</main>
+<script>
+// Demo state lives only in the current document; a reload restores the reference.
+const notify = document.getElementById('notify');
+notify.addEventListener('click', () => {
+  notify.textContent = 'Notification enabled';
+  notify.setAttribute('aria-pressed', 'true');
+});
+document.getElementById('close-delivery').addEventListener('click', () => {
+  document.getElementById('delivery').hidden = true;
+});
+const categories = [...document.querySelectorAll('.category')];
+function selectCategory(selected) {
+  categories.forEach(category => {
+    const active = category === selected;
+    category.setAttribute('aria-selected', String(active));
+    category.tabIndex = active ? 0 : -1;
+  });
+  selected.scrollIntoView({behavior:'smooth', block:'nearest', inline:'nearest'});
+}
+categories.forEach((category, index) => {
+  category.addEventListener('click', () => selectCategory(category));
+  category.addEventListener('keydown', event => {
+    let next;
+    if (event.key === 'ArrowRight') next = (index + 1) % categories.length;
+    if (event.key === 'ArrowLeft') next = (index + categories.length - 1) % categories.length;
+    if (event.key === 'Home') next = 0;
+    if (event.key === 'End') next = categories.length - 1;
+    if (next === undefined) return;
+    event.preventDefault();
+    selectCategory(categories[next]);
+    categories[next].focus({preventScroll:true});
+  });
+});
+</script>
+</body>
+</html>

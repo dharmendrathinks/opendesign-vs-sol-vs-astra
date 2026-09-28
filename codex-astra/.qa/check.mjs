@@ -1,0 +1,47 @@
+import fs from 'node:fs/promises';
+const tab = (await (await fetch('http://127.0.0.1:9223/json')).json()).find(t=>t.type==='page');
+const ws = new WebSocket(tab.webSocketDebuggerUrl);
+await new Promise(resolve => ws.addEventListener('open', resolve, {once:true}));
+let id=0;const pending=new Map();
+ws.addEventListener('message', event=>{const m=JSON.parse(event.data);if(m.id){const p=pending.get(m.id);pending.delete(m.id);m.error?p.reject(m.error):p.resolve(m.result)}});
+function call(method,params={}){return new Promise((resolve,reject)=>{pending.set(++id,{resolve,reject});ws.send(JSON.stringify({id,method,params}))})}
+async function evaluate(expression){const r=await call('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw r.exceptionDetails;return r.result.value}
+const width = Number(process.env.VIEWPORT_WIDTH || 393);
+await call('Page.enable');
+await call('Emulation.setDeviceMetricsOverride',{width,height:852,deviceScaleFactor:1,mobile:true});
+await call('Page.navigate',{url:'file://'+process.cwd()+'/index.html'});
+await new Promise(resolve=>setTimeout(resolve,500));
+await evaluate('document.fonts.ready');
+const checks=[];
+function assert(name,pass){checks.push({name,pass});if(!pass)console.error('FAIL',name)}
+assert(`Viewport is ${width} × 852`, await evaluate(`innerWidth === ${width} && innerHeight === 852`));
+assert('All cropped artwork loaded', await evaluate('[...document.images].every(i=>i.complete && i.naturalWidth > 0)'));
+assert('Initial state matches',await evaluate('document.querySelector("#notify").textContent === "Notify Me" && !document.querySelector("#delivery").hidden && document.querySelector(".category[aria-selected=true]").textContent.trim() === "All"'));
+assert('Banner has at least 8px clearance above navigation', await evaluate('document.querySelector(".bottom").getBoundingClientRect().top-document.querySelector(".delivery").getBoundingClientRect().bottom >= 8'));
+assert('Close button remains inside banner and clickable', await evaluate('(()=>{const c=document.querySelector("#close-delivery"),r=c.getBoundingClientRect(),b=document.querySelector(".delivery").getBoundingClientRect();return r.left>=b.left && r.right<=b.right && r.top>=b.top && r.bottom<=b.bottom && c.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))})()'));
+await fs.writeFile(`.qa/initial-${width}x852.png`,Buffer.from((await call('Page.captureScreenshot',{format:'png'})).data,'base64'));
+await call('Input.dispatchMouseEvent',{type:'mousePressed',x:196,y:117,button:'left',clickCount:1});
+await call('Input.dispatchMouseEvent',{type:'mouseReleased',x:196,y:117,button:'left',clickCount:1});
+assert('Notify button click updates label',await evaluate('document.querySelector("#notify").textContent === "Notification enabled"'));
+const closePoint = await evaluate('(()=>{const r=document.querySelector("#close-delivery").getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()');
+await call('Input.dispatchMouseEvent',{type:'mousePressed',...closePoint,button:'left',clickCount:1});
+await call('Input.dispatchMouseEvent',{type:'mouseReleased',...closePoint,button:'left',clickCount:1});
+assert('Close button click dismisses banner',await evaluate('document.querySelector("#delivery").hidden'));
+await call('Input.dispatchMouseEvent',{type:'mousePressed',x:208,y:328,button:'left',clickCount:1});
+await call('Input.dispatchMouseEvent',{type:'mouseReleased',x:208,y:328,button:'left',clickCount:1});
+assert('Category click selects Electronics only',await evaluate('document.querySelectorAll(".category[aria-selected=true]").length===1 && document.querySelector(".category[aria-selected=true]").textContent.trim()==="Electronics"'));
+assert('Category row has horizontal overflow',await evaluate('document.querySelector(".categories").scrollWidth > document.querySelector(".categories").clientWidth'));
+await call('Input.dispatchMouseEvent',{type:'mouseWheel',x:220,y:328,deltaX:140,deltaY:0});
+await new Promise(resolve=>setTimeout(resolve,300));
+assert('Horizontal wheel scroll moves category row',await evaluate('document.querySelector(".categories").scrollLeft > 0'));
+await evaluate('categories[4].focus();');
+await call('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowLeft',code:'ArrowLeft'});
+assert('Keyboard arrows update active category',await evaluate('document.querySelector(".category[aria-selected=true]").textContent.trim()==="Beauty"'));
+await call('Page.reload');
+await new Promise(resolve=>setTimeout(resolve,350));
+assert('Reload restores initial state',await evaluate('document.querySelector("#notify").textContent === "Notify Me" && !document.querySelector("#delivery").hidden && document.querySelector(".category[aria-selected=true]").textContent.trim() === "All"'));
+assert('No document horizontal overflow',await evaluate(`document.documentElement.scrollWidth===${width}`));
+console.log(JSON.stringify(checks,null,2));
+await fs.writeFile('.qa/results.json',JSON.stringify(checks,null,2));
+ws.close();
+if(checks.some(c=>!c.pass))process.exitCode=1;
